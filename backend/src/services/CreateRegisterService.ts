@@ -1,7 +1,9 @@
+import { getRepository } from 'typeorm'
+
 import Register from '../models/Register';
-import RegistersRepository from '../repositories/RegistersRepository';
 
 interface Request{
+    carPlate: string;
     date: string;
     currentKm:number;
     fuel: string;
@@ -12,26 +14,26 @@ interface Request{
 }
 
 class CreateRepositoryService{
-    private registersRepository: RegistersRepository;
 
-    constructor (registersRepository: RegistersRepository){
-        this.registersRepository = registersRepository
-    }
 
-    public execute({date, currentKm, fuel, liters,priceLiter, totalValue, gasInfo}: Request): Register{
+    public async execute({carPlate, date, currentKm, fuel, liters,priceLiter, totalValue, gasInfo}: Request): Promise<Register>{
         
-        //Se houver alguma validação de dados a ser feita, será inserida aqui
-        
-        const register = this.registersRepository.create({
-            date, 
-            currentKm, 
-            fuel, 
+        const registersRepository = getRepository(Register);
+
+        const register = registersRepository.create({
+            carPlate,
+            date,
+            currentKm,
+            fuel,
             liters,
-            priceLiter, 
-            totalValue, 
-            gasInfo});
+            priceLiter,
+            totalValue,
+            gasInfo
+        });
 
-            return register;
+        await registersRepository.save(register);
+
+        return register;
     }
 }
 
